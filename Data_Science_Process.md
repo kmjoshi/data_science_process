@@ -5,16 +5,16 @@ An effort to better define my Data Science process
 	- [OpenRefine](https://github.com/OpenRefine/OpenRefine/wiki/Documentation-For-Users)
 	- SQL/pandas helper functions
 - EDA
-	- Tableau (pick a dataset)
-	- Apache Superset (pick a dataset)
+	- Tableau
+	- Grafana/Apache Superset 
 - Stats
 	- Viewing a distribution
 	- Testing for effects (post-hoc)
 - ML
-	- Classification (pick a dataset)
-		- text-classification
-	- Clustering (pick a dataset)
-	- Regression (skip)
+	- Classification
+		- [text-classification](https://github.com/kmjoshi/text_classification)
+	- Clustering
+	- Regression
 	- Time-series forecasting (LSTM time-series forecasting)
 - Deploying
 	- [Docker](#Docker)
@@ -72,7 +72,7 @@ Create your own image
 
 Loading a docker app on AWS
 
-# Pitch
+<!-- # Pitch
 Hi! I am Keshav Joshi, lover of all things, free-thinking, generally nice person, GaTech Alum, holder of two Masters Degrees (Physics/CS) and am looking for Data Science work of all kinds (full-time/part-time/contract).
 
 This [link]() outlines my view of the Data Science process, with examples of work I have done with each.
@@ -106,9 +106,9 @@ Issues with the Data Science Process that I cannot handle but would like to lear
 
 <!-- Oh you are still reading this! I appreciate this a lot, but you know what I would appreciate even more!? Some paisa $_$, please send some over if you felt this has helped you: [paytm]() [paypal](). -->
 
-Thanks for reading! Suggestions welcome! 
+<!-- Thanks for reading! Suggestions welcome! 
 
-Looking for roles! [Email me](mailto:kjoshfree@gmail.com)
+Looking for roles! [Email me](mailto:kjoshfree@gmail.com) -->
 
 # References
 - [AI for Everyone by Andrew Ng](https://www.coursera.org/learn/ai-for-everyone)
