@@ -22,6 +22,16 @@ An effort to better define my Data Science process
 	- How to decide what visualizations to use: [cheatsheet](./Franconeri_ExperCeptionDotNet_ChartChooser.pdf)
 - [Pitch](#Pitch)
 
+# EDA
+	- Look at distribution of each variable
+		- identify type of distribution
+		- identify outliers
+		- identify mean/std
+	- Clean outliers if needed
+	- Look at all variable correlations
+	- Try linear regressions/poly fits
+	- Look at FFTs if time-series
+
 # Docker
 [Tutorial](https://github.com/docker/labs/blob/master/beginner/chapters/alpine.md)
 
@@ -92,6 +102,7 @@ Non-technical Data Science Process:
 			- Yes! Perfect for implementing AI
 	- What can you do with ML?
 		- Video: [Part 1](https://www.coursera.org/learn/ai-for-everyone/lecture/rv1fW/what-machine-learning-can-and-cannot-do), [Part 2](https://www.coursera.org/learn/ai-for-everyone/lecture/9n83j/more-examples-of-what-machine-learning-can-and-cannot-do). can audit this course to access
+		- https://brohrer.github.io/five_questions_data_science_answers.html
 		- Segment data into clusters that might/might not be human-identifiable
 		- Predict the ```FUTURE!```
 	- Can I use classical AI techniques or control theory?

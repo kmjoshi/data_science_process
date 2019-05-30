@@ -1,0 +1,653 @@
+My high-level notes from all of Andrew Ng's Coursera courses
+
+# Machine Learning (notes from '15)
+Supervised Learning: Using already classified/regressed data learn and predict for any future dataset  
+Unsupervised Learning: Based on a dataset find patterns and similarities and any new findings
+Classification: classify data into n-discrete sets, find a function that maps data to this discrete set  
+Regression: classify data onto a continuous set; used for prediction of continuous variables pricing, temperature etc.  
+
+Algorithms  
+- k-nearest neighbor
+    - classify input based on k nearest neighbor values
+    - really seems way too simple...
+- classification trees
+    - piecewise interpolation
+    - diving n-dimensional fields into subsets that hold only one value, via minimizing the fraction of wrong classes in said region or the mean-square error
+        - misclassification error and entropy: sum_y{ p(y) log(p(y)) }
+        - use arbitrary manifolds for growing classification trees? as opposed to rectilinear grids? topology?
+- random forests
+    - in a high dimensional dataset start constructing a classification tree
+        - at each node choose a random subspace of full dataset and split along those dimensions/features of the data to minimize error
+        - bootstrapping over random tress (aka forests) to get reduced variance in ensemble function output
+- neural networks
+
+Ways to solve problem aka minimize estimated loss aka find the conditional distribution (the big picture): Ch. 3. Supervised Learning  
+Discriminative: 
+- kNN
+- random forest
+- support vector machines  
+Generative: 
+- calculate conditional probabliltiy therefore estimated loss using bayesian rules and parameters: fit the distribution  
+
+Exact inference: 
+- multivariate gaussian distribution
+- conjugate priors
+- graphical models
+- point estimate of theta (all parameters of dataset)
+- maximum likelihood estimate, maximum a posteriori estimate (theta value that maximizes p(th|x,D)
+- Optimization, Expectation Maximization, and Empirical bayes (point estimate for parts of theta)  
+
+Deterministic approximations
+- Laplace approximation
+- Variational Methods
+- Expectation Propagation  
+
+Stochastic Approximations
+- Markov Chain Monte Carlo (Gibbs, MH), Importance sampling (Particle filtering)
+
+Above methods are also applicable in unsupervised learning?
+
+Gradient descent: Cost function update algorithm: other options:
+- conjugate gradient
+- BFGS
+- L-BFGS  
+
+K-means  
+- very simple algorithm
+- randomly initialize k-points on actual training points and iterate k-means with several initializations to converge on global minimum
+- run over several values of k to find the right number k (find least minimum cost k)
+- mean normalization and feature scaling in n-dimensional data
+
+Dimensionality reduction
+- PCA in 2D, projection of data onto regressed curve dimension (or eigenvector plane aka subspace)
+- PCA vs linear regression
+    - minimize projection distance (orthogonal distance to projection onto subspace)
+- Only use PCA when conventional method on full dataset is too slow
+
+Anomaly detection
+- create a library of good input and anomalous input
+- calculate a p(x) for all good input
+- find a tolerance e below which in the phase space any input will be anomalous
+    - key assumption that all features/parameters are independent variables (not effective) that follow gaussian distribution
+        - simple polynomial(power) or log manipulations can transform the input feature to have a gaussian distribution then plug it into anomaly detection theorem
+- be creative with non-linear superposition of features
+- don't need to be creative just calculate a covariance, independent variables computationally cheaper for large matrices
+
+Mapreduce
+- Useful for scaling to large datasets
+- when taking the sum of large matrices is the bulk of the overhead
+
+# Neural Networks and Deep Learning (notes from '17)
+Neural Network (glorified logistic regression)  
+IDEA - CODE - EXPERIMENT  
+Neural Network Hyperparameters:
+- learning rate alpha
+- no of iterations
+- Size of hidden layer
+- activation function
+- Algorithm specifics: momentum etc
+- Number of hidden layers (what makes it deep)
+- momentum
+- mini-batch size
+- regularizations
+
+Deep Learning features:
+- Deep learning = neural networks with MANY hidden layers. 
+- is now succesful as it scales with more data. Other learners plateau with more data while deep NNs increase in accuracy. For smaller datasets all algorithms are comparable and performance largely depends on the match of domain and algorithm.  
+- use 'relu' (y = x in x >=0; y = 0 in x < 0)  
+- work well to abstract features from complex datasets. Every additional layer can tackle different low level features, like having a PCA mode in each layer.  
+- Circuit theory and deep learning. a small deep network can compute mapping functions that would require a big shallow network.  
+- Types of neural networks:
+    - Standard
+    - Convolution neural network
+    - Recurrent neural network
+    - Hybrid schemes: NN and RL etc
+
+# Improving Deep Neural Networks: Hyperparameter tuning, Regularization and Optimization
+ Its OK to have a mismatched train & dev/test set. A NN can learn the lower level features and fine tune to dev/test set. How to handle bias and variance: see structuring ML projects  
+ Regularization:
+- L2
+- dropout: randomly drop units from NN
+- data augmentation: symmetry operations, filters on data
+- early stopping (classic)  
+
+Regularization emphasises the larger features  
+Other deep learning features:
+- Mini-batch gradient descent: like bootstrapping, train on batches of data  
+- momentum: exponentially weighted moving average of gradient descent, nudge gradient descent in the average direction of its motion.  
+- RMSprop: 
+- Adam: adapted moment estimation
+- Learning rate decay: stop jumping close to the minima
+- local optima: there aren't really local optima but saddle points, bad because they slow down learning
+- Hyperparameter tuning (tiered by Ng):
+    - alpha
+    - beta, mini-batch size, hidden units
+    - no of layers, learning rate decay
+    - beta1/2, epsilon
+- randomly select in hyperparameter space rather than grid
+- sample hyperparameters on the log-scale (then fine-tune if necessary)
+- pandas [babysit a model] vs caviar [run several models in parallel]
+- Batch normalization: normalize the values inside a network. like a regularization. need to unnormalize for the testing phase.
+- Multi-class classification: softmax regression.
+- DL frameworks
+ 	- Caffe/2
+ 	- CNTK
+ 	- DL4J
+ 	- Keras
+ 	- Lasagne
+ 	- mxnet
+ 	- PaddlePaddle
+ 	- TF
+ 	- Theano
+ 	- Torch
+- How to choose a DL framework:
+    - ease of programming (dev and deployment)
+    - running speed
+    - truly open (w/ good governance)
+
+# Structuring ML projects
+ Options: 
+- Collect more data
+- Collect more diverse training set
+- Train algorithm longer with gradient descent
+- Try Adam instead of gradient descent
+- Try a bigger/smaller network
+- Try dropout/try L2 regularization
+- Adjust network architecture:
+    - activation functions
+    - no. of hidden units
+- Orthogonalization
+    - Steps of ML:
+ 		- Fit training set well on cost function (upto human level performance) - [bigger network] [Adam]
+ 		- Fit dev set well on cost function - [regularization: dropout/L2] [bigger training set]
+ 		- Fit test set well on cost function - [bigger dev set]
+ 		- Performs well in real world - [change dev set] [change cost function]
+ 	- Early stopping (usual method of cross-validation) affects both bias and variance: the first two steps mentioned  
+- Single number eval metric: as in F1 score: harmonic mean of precision and recall
+- satisficing (algo should perform better than x) and optimizing metric (hyperparameter: run crossvalidation on this)
+- train/dev/test distributions
+ 	- dev and test sets should come from the same distribution
+- size of dev/test
+ 	- test set should be big enough to give high confidence in the overall performance of the system (doesn't have to be 30% eg. min(10,000, 30%))
+- when to change dev/test sets and metrics
+ 	- 1) choose target/metric
+ 	- 2) figure out how to hit target
+- compare to human level performance an approximation of optimal bayes error
+ 	- usually harder to get much better than human level error, can't get labeled data, can't debug
+- avoidable bias (if learner is not close to human level/ optimal bayes error)
+	- surpassing human performance: 
+		- structured data
+		- lots of data
+		- not natural perception problem
+
+How to improve model performance?
+- Error analysis: 
+ 	- find the reason for high error (aka bias), debug the mislabeled samples. Assess superficially whether there is a tangible reason for the mislabeling. If yes and a significant number are due to a tangible reason, try to tune the algo on that specific tangible reason/feature. Eg.: picture is blurry, small dog is a car, filters etc.
+ 	- mislabeled data: NNs are resilient to random errors aka treat as outliers. but not to systematic errors, but above error analysis by looking at mislabeled data manually will isolate such a problem. 
+ 	- manually checking mislabeled data allows to build a hierarchy of reasons for errors. Track the ones that cause most error. After diagnosis, apply the fix to training, dev and test sets. 
+ 	- BUILD QUICKLY THEN ITERATE! START SIMPLE THAN FINE-TUNE. 
+ 	- If you are training your model on a dataset, but you have fewer samples of your target dataset. And you supplement with tangentially similar but much larger dataset. Include parts of the target dataset in your train set, but limit your dev and test set to be fully comprised of your target dataset. Thus you will train on tangential features and target features and optimize per target features. 
+ 		- you might end up training on purely the train set and end up with high variance when looking at dev error.
+- Avoidable bias = (Train error - Human/optimal bayes error) 
+ 	- [Train bigger model: more units per layer]
+ 	- [Train longer/better optimization algorithms]
+ 	- [NN architecture/hyperparameters search]
+- Variance = (Train error - train-dev error) 
+ 	- [Get more data]
+ 	- [Control overfitting: regularize: l2, dropout, data augmentation]
+ 	- [NN architecture/hyperparameters search]
+- Data Mismatch = (Train-dev error - dev-error)
+	- manually assess data mismatch like in manual error analysis
+ 	- get more similar data
+ 	- artificially manipulate/synthesize data to look more like target dataset. What are the degrees of freedom of your artificial data? what is the vector space of your data? Make sure it is sufficient to not overfit the model to a subspace represented from the artifical data aka break stereotypes. 
+- Overfitting = (Test error - dev error) [Regularize]
+- Transfer learning
+ 	- take the old NN, reset the weights for the last layer and re-train the last layer (can re-train the entire network, in this case the first step of learning acts as a form of initialization)
+ 	- essentially can use initialization from a larger directly/tangentially related dataset and fine-tune to the target dataset with re-training parts of the network.
+- learning from multiple tasks: tasks might share some 'lower-level' features allowing for efficiency. amount of data for each task is similar. train a network large enough with data containing all sets of tasks.
+- end to end deep learning: direct mapping from x to y as opposed to pipeline of layers of data-processing/ML to output. 
+ 	- pipelines to extract features that are more tangible for human comprehension and putting into a non-ML pipeline, instead of a black box. 
+ 	- Do you have enough data to map from x to y; to correctly figure out the mapping function, you need data commensurate with the dimensionality of the function.  
+
+# Convolutional Neural Networks
+- Computer Vision
+	- Types of vision problems:
+ 		- Image Classification
+ 		- Object detection
+ 		- Neural Style Transfer
+ 	- features based on pixels are very large: w x h x encoding (rgb_encoding = 3)
+ 		- deep learning on large images leads to very large networks
+ 		- hard to get enough data to prevent the large network from overfitting
+ 			- overfitting vs. no of layers/hidden layers vs. no of examples
+
+ 	- edge detection
+ 		- convolve: multiply the image matrix with a filter/kernel, while moving it over the original image. moving average
+ 			- nxn image, with padding p; convolved by fxf filter, with stride s, results in [(n+2p-f)/s + 1]x[(n+2p-f)/s + 1] image
+ 				- solution: pre-padding before convolution
+ 				- pad with zeros?
+ 				- can also have longer 'strides', default s = 1
+ 			- valid convolutions: no padding
+ 			- same convolutions: pad such that maintain image size
+ 		- eg. vertical edge detection: convolve with [1 0 -1] as a (n x n)
+ 			- larger n leads to more smoothing, default n = 3
+ 			- numbers here check for difference across a separation of 2 pixels horizontally, hence detecting a vertical edge
+ 			- variations: sobel filter | scharr filter
+ 		- NOTE: in math notebooks convolutions involve a transpose of the convolution matrix. what deep learning refers to as convolution is better known as cross-correlation
+ 		- learn the filters via machine learning!
+ 		- implementation:
+ 			- python: conv_forward
+ 			- tensorflow: tf.nn.conv2d
+ 			- keras: conv2D
+ 		- egs. of simple convolution kernels in image processing:
+ 			- [Wiki-Kernel](https://en.wikipedia.org/wiki/Kernel_(image_processing))
+ 			- [Image-kernels](http://setosa.io/ev/image-kernels/)
+ 			- how did they come up with these kernels? 
+ 				- first principles ?
+ 				- trial and error ?
+ 	- CNN: each layer is a image of size nH x nW x nC
+ 		- channel is RGB, each color being a channel.
+ 		- convolutions on each channel
+ 		- each CNN layer is a m x m x c' matrix
+ 			- c' is the number of filters applied
+ 		- a bias is added to each filter convolution
+ 		- Notation:
+ 			- sup[l] = layer
+ 			- sub_i = index
+ 			- f_sup[l] = filter size
+ 			- p_sup[l] = padding
+ 			- s[l] = stride
+ 			- n_sub[H | W | c]_sup[l] = dimension of image
+ 			- n_sub(c)_sup[l] = no. of filters
+ 			- filter size = f[l] x f[l] x n_c[l-1]
+ 			- activations: a[l] = n_H[l] x n_W[l] x n_c[l]
+ 			- weights: f[l] x f[l] x n_c[l-1] x n_c[l]
+ 			- bias: n_c[l]
+ 		- convolution layers (conv) | pooling layers (pool) | fully connected layers (fc)
+ 		- pooling:
+ 			- max pooling: take max over f x f with stride s
+ 			- average pooling
+ 			- has no parameters, only hyperparams: f, s, max/average
+ 			- why?
+ 		- fc: regular nn layer
+ 			- end with a softmax
+ 		- why convolutions?
+ 			- parameter sharing
+ 	- Case Studies:
+ 		- look at specific implementation of CNNs in different domains to better leverage for future tasks!
+ 	- Classic networks:
+ 		- LeNet-5
+ 			- LeCun et. al '98
+ 			- 32x32x1 -> 5x5 filter -> 28x28x6 -> avg. pool (f=2,s=2) -> 14x14x6 -> 5x5 filter -> avg. pool (f=2, s=2) -> 5x5x16 -> FC -> 120 -> FC -> 84 -> antique activation -> output
+ 			- 60k parameters
+ 			- nH, nW go down as we go deeper
+ 			- nC goes up
+ 			- common template: conv pool conv pool fc fc output
+ 		- AlexNet
+ 			- Krizhevsky et al. '12
+ 			- 227x227x3 -> 11x11,s=4 filter -> 55x55x96 -> max pool (f=3,s=2) -> 27x27x96 -> 5x5 same conv -> 27x27x256 -> max pool (f=3,s=2) -> 13x13x256 -> 3x3 same conv -> 13x13x384 -> 3x3 filter -> 13x13x384 -> 3x3 filter -> 13x13x256 -> max pool (f=3,s=2) -> 6x6x256 -> fc -> 9216 -> fc -> 4096 -> fc -> 4096 -> softmax -> output
+ 			- 60M parameters
+ 			- local response normalization? 
+ 		- VGG-16
+ 			- simonyan & zisserman '15
+ 			- 224x224x3 -> same conv 64 x2 -> 224x224x64 -> max pool (f=2,s=2) -> 112x112x64 -> same conv 128 x2 -> max pool (f=2,s=2) -> 56x56x128 -> same conv 256 x3 -> 56x56x256 -> max pool (f=2,s=2) -> 28x28x256 -> same conv 512 x3 -> 28x28x512 ->  ... -> 1000 -> softmax
+ 			- 138M parameters
+ 			- Ng loves it because the layers are systematic
+ 	- ResNet (152-layer NN)
+ 		- He et al '15
+ 		- residual block:
+ 			- a[l+1] = g(W[l+1]a[l] + b[l+1])	# regular nn
+ 			- a[l+2] = g(W[l+2]a[l+1] + b[l+1] + a[l])	# residual block
+ 			- allows you to train much deeper networks
+ 				- usually you can increase training error with deeper networks
+ 				- resnets can lead to deeper networks without increasing training error
+ 			- it's easy for the res-block to learn the identity function, so it does not hurt performance to add more layers
+ 	- 1x1 convolution
+ 		- nHxnWxnC -> 1x1xnC -> relu -> nHxnWxnF
+ 		- each filter multiplies each channel to get one value
+ 		- to reduce the number of channels, use fewer filters than nC
+ 		- pooling layers allow to reduce the height and width
+ 	- Inception
+ 		- Szegedy et al. '14
+ 		- for one transformation, stack outputs of many different filters/pools, ensuring dimensions match
+ 		- use 1x1 to get a bottleneck layer
+ 		- use many transformations in one layer to have a very shallow network with much complexity
+ 		- inspired by inception meme
+ 	- use open-source: to skip expensive tuning
+ 	- transfer learning: eg. get imagenet model with weights, freeze all parameters except for softmax layer, modify and re-train for your problem
+ 		- can vary how many layers to freeze
+ 		- Ng: always do transfer learning unless you have an exceptionally large dataset
+ 	- data augmentation: mirroring | ~shearing | random cropping | ~local warping | ~rotation | color shifting | ~PCA color augmentation
+ 	- current state
+ 		- data vs hand engineering
+ 		- how much data we have
+ 			- more hand-engineering/hacks :less data <- object detection | image recognition | speech recognition -> lots of data: simpler algorithms, less hand-engineering
+ 		- sources of knowledge: 
+ 			- labeled data
+ 			- hand-engineering / network architecture / other components
+ 		- tips for doing well on benchmarks:
+ 			- ensemble of models: vote
+ 			- multi-crop at test time: vote
+ 	- Object Detection:
+ 		- object localization:
+ 			- put a bounding box on the actual object
+ 			- detection = localize all objects in image
+ 			- model output: bx, by, bh, bw | midpoints, extent of bounding box
+ 			- y = [pc, bx, by, bh, bw, ci]
+ 				- pc = prob of an object being present in the bounding box
+ 				- b_ = bounding box
+ 				- ci = a set of |i| elements, whether it belongs to class i
+ 				- can define more key positions in the output layer, beyond just the bounding box
+ 					- landmark detection
+ 					- but will also need the labeled data to be able to train it!
+ 			- loss = sum{i} (y_i' - y_i)^2 if y[1]=1
+ 				- (y[1]'-y[1])^2 if y[1] = 0
+ 				- y is the true data
+ 		- training a detection model
+ 			- get labeled data
+ 			- crop out all the bounding boxes and get a new training set
+ 			- train convNets on this new data set outputting a smaller softmax vector
+ 			- now train model on original set with sliding windows (fixed stride) to get a fuller output with bounding boxes
+ 				- iterate over the size of the sliding window
+ 				- sliding windows detection
+ 					- infeasible with convNets, was efficient with simple linear classifiers of the past
+ 				- but you can implement sliding windows on sliding windows: review details ? ?
+ 					- the size of the window is fixed tho
+ 					- the location of the bounding box will not be accurate
+ 		- YOLO [You only look once]
+ 			- break image to grids: 9
+ 			- label training data for each grid: y = [pc, bx, by, bh, bw, ci]
+ 				- bounding boxes can go beyond the grid cell
+ 				- can be augmented with many anchor boxes
+ 				- y = gxgxax(n+5)
+ 					- a = no of anchor boxes
+ 					- n = no of classes
+ 					- g = no of grid cells of original image
+ 				- input -> nHxnWxnC -> convNet -> y (gxgxaxn)
+ 			- run the convNet, get output
+ 			- run non-max suppression for all classes
+ 			- works for real-time object detection
+ 		- Intersection over Union (IoU)
+ 			- two bounding boxes spanned by the model that 'detect' an object
+ 			- size of intersection / size of union
+ 			- localization is correct if IoU >= 0.5 
+ 				- convention
+ 		- non-max suppression:
+ 			- many bounding boxes will predict the same object
+ 			- setup: discard all boxes with pc <= 0.6
+ 				- for all grid cells
+ 			- pick the box with max pc in a class and return as prediction
+ 			- discard any box with IoU >= 0.5 with the box returned previously
+ 			- rinse and repeat
+ 		- anchor boxes:
+ 			- pick a specific shape as a box, beyond the grid cell sizes
+ 				- can choose many hand-picked anchor boxes before hand
+ 				- augment y with more values for each anchor box centered somewhere in the grid cell
+ 		- region proposals:
+ 			- pick a subset/region of the image that have a higher probability of containing objects
+ 			- R-CNN: does image segmentation, then classify on those regions one-by-one
+ 				- slow
+ 	- Face Recognition: 
+ 		- verification (given: image | name) vs. recognition (given: image)
+ 		- one-shot learning:
+ 			- learning from one example to recognize person again
+ 		- learn a similarity function: d(img1, img2)
+ 			- can be used to address one-shot learning problems
+ 			- verification: set a threshold for d
+ 			- recognition: take a max over all persons
+ 		- siamese network: 
+ 			- take one of the last few FC layers in a convnet
+ 				- f(x[1])
+ 				- distance between such encodings of different images, over the same convnet parameters (aka siamese) is a form of similarity function
+ 				- DeepFace Taigman '14
+ 			- train this siamese network to give a good similarity function
+ 			- triplet loss
+ 				- given 3 images: anchor | positive | negative
+ 				- L(A,P,N) = max(||f(A) - f(P)||^2 - ||f(A) - f(N)||^2 + alpha, 0)
+ 				- train the model to get this loss to 0
+ 					- aka set the positive at least alpha away from the negative
+ 				- how many triples so train on
+ 				- FaceNet '15
+ 				- commercial ~ millions of images
+ 			- face-recognition: take a siamese network of two images and verify if they are the same with a linear combination of the final FC layer. turns it into a binary clasification. train a log-reg on the error between fc layer of a siamese network.
+ 				- train on several pairs of images: +ve and -ve
+ 				- can precompute encodings for a set of images
+ 	- neural style transfer
+ 		- transfer an artistic style to an image
+ 		- make a cost function for the generated image: 
+ 			- J(G) = a*Jc(C,G) + bJs(S,G)
+ 			- c = content | s = style
+ 		- steps:
+ 			- initialize G randomly
+ 			- Use gradient descent to minimize J(G)
+ 			- G should be similar to both C and S
+ 		- use some hidden layer l, somewhere in the middle to compute network cost
+ 		- Jc(C,G) = a*||a\[l](C) - a\[l](G)||^2
+ 			- differences of activations of C,G
+ 			- content cost function
+ 		- Js(S,G) = a*||M\[l](s)-M\[l](g)||^2
+ 			- style cost function
+ 			- style = correlation across channels in a hidden layer in the middle of our network
+ 			- style matrix (gram): 
+ 				- Mkk'\[l](s) = a_ijk\[l](s) a_ijk'\[l](s)
+ 				- Mkk'\[l](g) = a_ijk\[l](g) a_ijk'\[l](g)
+ 			- can do a linear combination of many layers, with a weighting parameter
+ 	- visualizing layers of convnets:
+ 		- pick a unit in layer 1
+ 		- find the nine patches that maximize the unit's activation
+ 		- look at the features these units differentiate from the nine patches
+ 		- repeat for deeper layers
+ 	- Convolutions in 1D and 3D Data !?!?
+ 		- 1D: 1D filters in time = moving average
+ 		- 3D: automatically an input -> apply 3D filters
+
+# Sequence Models
+- Examples
+	- speech recognition
+	- music generation
+	- sentiment classification
+	- DNA sequence analysis
+	- machine translation
+	- video activity recognition
+	- name entity recognition
+- Notation:
+ 	- x: input
+ 	- y: output
+ 	- sup \<i> = index of word/element in sequence
+ 	- sup (i) = training example index
+ 	- Tx = Ty = no of elements in sequence
+ 	- vocabulary of size n: represent x\<i> as one-hot encoded vectors of size n
+- Recurrent Neural Networks
+ 	- why not a standard nn?
+ 		- input and outputs have different lengths for different examples
+ 		- features are not shared across different positions of text
+ 	- setup:
+ 		- a\<i>: activation for i element in sequence
+ 			- a\<0>: vector of zeros
+ 			- a\<i>: g(w_aa*a\<i-1> + w_ax*x\<i> + ba)
+ 				- g: tanh | relu
+ 		- y\<i>: g(w_ya*a\<i> + by)
+ 			- g: sigmoid
+ 		- w_a[a/x/y]: weights for transfer
+ 	- types of RNN architecture:
+ 		- many-to-many: Tx = Ty
+ 			- also Tx != Ty
+ 				- machine translation: encoder (input xs) | decoder (output ys)
+ 		- many-to-one: Ty = 1
+ 			- sentiment analysis
+ 		- one-to-one: Tx = Ty = 1
+ 			- regular nn
+ 		- one-to-many: Tx = 1
+ 			- music generation
+ 	- language modelling and sequence generation: 
+ 		- speech recognition: P(sentence/word) as a function of preceding word/sentence
+ 			- training set: a lot of text, tokenize the text into a set of input arrays x(i)\<>
+ 				- y\<i> = P(ith word being = all possible words in dict)
+ 				- the sequence becomes like a maximum likelihood function
+ 		- sample a sequence from a trained RNN:
+ 			- sample from the softmax probabilities y\<i>, in a sequence so start with i=1
+ 		- word-level vs character-level
+ 			- character-level:
+ 				- longer sequences
+ 				- can handle unknown words and set them definite probabilities
+ 			- word-level:
+ 				- more efficient
+ 	- vanishing gradients w/ RNNs
+ 		- longer sequences lead to vanishing gradients
+ 			- elements have minimal effect on other elements far away
+ 		- exploding gradients: gradient clipping?
+ 	- Gated Recurrent Unit (GRU):
+ 		- ~c\<i> = a\<i>
+ 		- g_u = sigmoid(w_aa*a\<i-1> + w_ax*x\<i> + ba)
+ 		- c\<i> = g_u*~c\<i> + (1-g_u)*c\<i-1>
+ 		- it's like a convolution of sigmoid and tanh activation of a\<i>, and the difference between consecutive elements
+ 		- FULL GRU is different
+ 	- Long Short Term Memory (LSTM)
+ 		- ~c\<t> = tanh(w_a[a\<t-1>, x\<t>] + b_a)
+ 		- g_u = sigmoid(w_u[a\<t-1>, x\<t>] + b_u)
+ 		- g_f = sigmoid(w_f[a\<t-1>, x\<t>] + b_f)
+ 		- g_o = sigmoid(w_o[a\<t-1>, x\<t>] + b_o)
+ 		- c\<t> = g_u*~c\<t> + g_f*c\<t-1>
+ 		- a\<t> = g_o*tanh(c\<t>)
+ 		- designed to handle vanishing gradients
+ 			- along with GRU
+ 		- Ng Notes: GRU is a simpler model, easier to make larger models
+ 			- LSTM is more complex, powerful
+ 	- Bidirectional RNN
+ 		- two RNNs in parallel, both feed to y\<i> and take inputs from x\<i>
+ 		- can augment a regular RNN / LSTM / GRU architecture
+ 	- Deep RNNs
+ 		- add more layers!
+ 	- RNN code notation:
+ 		- m = no of examples
+ 		- n_a = no of activations
+ 		- n_x = size of vocab?
+ - Word embeddings:
+ 	- words as 1-hot vectors
+ 	- words as vectors of probability of belonging to n categories: embedding
+ 	- how to use:
+ 		- learn word-embeddings on a large text dataset (download pre-trained embedding)
+ 		- transfer embedding to a new task with a smaller training set (similar to CV transfer learning)
+ 		- optional: tune word-embeddings to your new data
+ 	- vector subtraction captures a relationship between words that can be used via dot products to get analogies (similies on the fly)
+ 		- Mikolov et al '13
+ 	- cosine similarity = u.v / |u||v|
+ 		- normalized dot-product
+ 	- how to learn a word-embedding:
+ 		- E = n x vocab_size matrix
+ 			- e_j = E@Oj
+ 			- Oj = one-hot vocab encoding
+ 		- neural language model: 
+ 			- Oj -> ej 
+ 			- use a subset of words, last n words etc 
+ 			- input into a fc layer and softmax to predict the next word
+ 			- can use such a setup to learn the embeddings matrix
+ 			- can pick inputs/context in many ways
+ 				- n words before / after / before+after
+ 		- Word2Vec Skip-gram:
+ 			- randomly pick a context word, randomly pick a target word
+ 			- given context, predict a word within +/- n word distance from context
+ 			- get a probability distribution based on context: p(t|c)
+ 			- train on many context/target pairing and train an embedding matrix
+ 			- slow training scaling with the size of the vocabulary
+ 				- solution binary tree classifier on vocab in softmax
+ 		- negative sampling
+ 			- pick a context
+ 			- pick the target word
+ 			- add more training examples with random words from vocab, these are all negative context-target pairs
+ 			- faster than Word2Vec, training binary classifiers instead of n softmax classifiers
+ 			- random words were sampled with probability f(wi)^(3/4) | where f(wi) is the frequency of word i
+ 		- GloVe: global vectors for word representation
+ 			- x_ij = no. of times word_i appears in context of word_j
+ 				- x_ij symmetric? 
+ 				- how is context-target defined? | in GloVe: within 10 words
+ 			- minimize sum{i=vocab;j=vocab} f(x_ij)(theta_i*ej + bi + bj' - log(x_ij))^2
+ 				- f(x_ij) sets to 0 all terms where x_ij = 0
+ 				- theta_i and e_j are symmetric
+ 		- how do you label the embedding matrix?
+ 			- labels aren't guaranteed\
+ 			- could do a basis change to get well-labeled embeddings, how?
+ 	- sentiment classification:
+ 		- oj -> ej -> avg -> sentiment_softmax
+ 			- can miss context, order of words
+ 		- rnn for sentiment classification
+ 	- debiasing word embeddings
+ 		- gender bias | racial bias | socioeconomic bias
+ 		- neutralize: project every word that is not definitional, to get rid of bias
+ 		- equalize pairs to be orthogonal on the bias basis vector
+ 	- Keras LSTM tip: return_sequences=True for first LSTM layer
+ - Sequence-to-sequence architectures
+ 	- machine translation
+ 		- encode sentence in original language with a RNN network
+ 		- decode sentence / synthesize sentence with another RNN in new language
+ 		- this works given enough paired data
+ 	- image captioning
+ 		- input: image
+ 		- output: caption
+ 		- take output of convNet (before softmax layer) and input into an RNN to generate a caption
+ 	- conditional language model
+ 		- P(y|x) = ?
+ 			- how to maximize this probability
+ 			- why not greedy search? does not work, need to maximize joint probability
+ 		- beam search!
+ 			- pick B best words to start the sequence
+ 			- pick B best set of words so far with highest joint probability
+ 			- rinse and repeat for rest of sequence
+ 			- EOS should be a valid word
+ 			- pick best output
+ 			- B = 1: greedy search
+ 	- length normalization:
+ 		- instead of minimizing small joint probabilities (that might not be representable by floating points); maximize log of joint probabilities
+ 		- normalize by the number of words in the output sequence
+ 			- 1/Ty^alpha * sum{t:1-Ty} log P(yt|x,y1,...,yt-1)
+ 			- alpha = 0.7 | hacky way of normalizing 
+ 			- allows the model to output longer sentences
+ 	- beam width trade-off
+ 		- research systems ~ B = 1000
+ 		- production systems ~ B = 10
+ 	- error analysis:
+ 		- compare P(y|x) & P(y'|x)
+ 			- y is human translation
+ 			- y' is model translation
+ 		- either beam search is at fault | or RNN is at fault
+ 			- no quantitative score minimization
+ 			- can either improve beam search or change RNN architecture
+ 	- Bleu Score:
+ 		- bleu: bilingual evaluation understudy
+ 		- given: input | reference translations | model output
+ 		- modified precision: for each word in model output, no of times each word appears in either of the reference / no of times it appears in model output
+ 			- sum{i: no. in reference}/sum{i: no in model output}
+ 		- bigrams: pairs of words
+ 			- modified precision for each bigram
+ 			- can extend to n-grams
+ 		- combined bleu score: e^(1/4 sum{n=1-4} p_n)
+ 			- 1-gram, 2-gram, 3-gram, 4-gram
+ 		- BP: brevity penalty
+ 			- bleu score can incentivize short phrases that contain reference words
+ 			- 1 if model_output_len > reference_len
+ 				- e^(1-model_output_len/reference_len) otherwise
+ 	- Attention model:
+ 		- hard to encapsulate long sequences into a meaningful input into the decoder
+ 			- same problems with human translation
+ 		- break sentence into segments | setup bidirectional encoder RNN | connect every state with every state of the decoder RNN
+ 		- sum{t'} alpha\<1,t'> = 1
+ 			- 1 is the state of the decoder RNN
+ 			- t' is the state of the encoder ENN
+ 			- alpha\<t,t'> = e^(e\<t,t'>) / sum{t'} e^(e\<t,t'>)
+ 				- amount of attention y\<t> should pay to a\<t'>
+ 				- e\<t,t'> calculated from a 1-layer nn with (s\<t-1>, a\<t'>) as inputs
+ 					- what is the loss?
+ 			- c\<1> = sum{t'} alpha\<1,t'>a\<t'>
+ 				- context input into the decoder RNN
+ 		- review this ? ?
+ 	- speech recognition: 
+ 		- air pressure vs time -> frequency, intensity vs. time
+ 		- used to learn speech via phonemes, but deep learning can learn phonemes intrinsically
+ 		- thousands of hours of label audio-transcript data
+ 			- how to segment the data in time for RNN inputs
+ 			- review AI?
+ 		- CTC (connectionist temporal classification) cost
+ 			- allows repeated output
+ 			- collapse repeated characters not separated by blank
+ 				- eg. ttt_h_eee___space__qqq = the q
+ 		- trigger word detection:
+ 			- label the data with 0s except when the trigger word is said
