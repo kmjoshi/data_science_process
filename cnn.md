@@ -1,0 +1,230 @@
+# Convolutional Neural Networks
+- Computer Vision
+	- Types of vision problems:
+ 		- Image Classification
+ 		- Object detection
+ 		- Neural Style Transfer
+ 	- features based on pixels are very large: w x h x encoding (rgb_encoding = 3)
+ 		- deep learning on large images leads to very large networks
+ 		- hard to get enough data to prevent the large network from overfitting
+ 			- overfitting vs. no of layers/hidden layers vs. no of examples
+
+ 	- edge detection
+ 		- convolve: multiply the image matrix with a filter/kernel, while moving it over the original image. moving average
+ 			- nxn image, with padding p; convolved by fxf filter, with stride s, results in [(n+2p-f)/s + 1]x[(n+2p-f)/s + 1] image
+ 				- solution: pre-padding before convolution
+ 				- pad with zeros?
+ 				- can also have longer 'strides', default s = 1
+ 			- valid convolutions: no padding
+ 			- same convolutions: pad such that maintain image size
+ 		- eg. vertical edge detection: convolve with [1 0 -1] as a (n x n)
+ 			- larger n leads to more smoothing, default n = 3
+ 			- numbers here check for difference across a separation of 2 pixels horizontally, hence detecting a vertical edge
+ 			- variations: sobel filter | scharr filter
+ 		- NOTE: in math notebooks convolutions involve a transpose of the convolution matrix. what deep learning refers to as convolution is better known as cross-correlation
+ 		- learn the filters via machine learning!
+ 		- implementation:
+ 			- python: conv_forward
+ 			- tensorflow: tf.nn.conv2d
+ 			- keras: conv2D
+ 		- egs. of simple convolution kernels in image processing:
+ 			- [Wiki-Kernel](https://en.wikipedia.org/wiki/Kernel_(image_processing))
+ 			- [Image-kernels](http://setosa.io/ev/image-kernels/)
+ 			- how did they come up with these kernels? 
+ 				- first principles ?
+ 				- trial and error ?
+ 	- CNN: each layer is a image of size nH x nW x nC
+ 		- channel is RGB, each color being a channel.
+ 		- convolutions on each channel
+ 		- each CNN layer is a m x m x c' matrix
+ 			- c' is the number of filters applied
+ 		- a bias is added to each filter convolution
+ 		- Notation:
+ 			- sup[l] = layer
+ 			- sub_i = index
+ 			- f_sup[l] = filter size
+ 			- p_sup[l] = padding
+ 			- s[l] = stride
+ 			- n_sub[H | W | c]_sup[l] = dimension of image
+ 			- n_sub(c)_sup[l] = no. of filters
+ 			- filter size = f[l] x f[l] x n_c[l-1]
+ 			- activations: a[l] = n_H[l] x n_W[l] x n_c[l]
+ 			- weights: f[l] x f[l] x n_c[l-1] x n_c[l]
+ 			- bias: n_c[l]
+ 		- convolution layers (conv) | pooling layers (pool) | fully connected layers (fc)
+ 		- pooling:
+ 			- max pooling: take max over f x f with stride s
+ 			- average pooling
+ 			- has no parameters, only hyperparams: f, s, max/average
+ 			- why?
+ 		- fc: regular nn layer
+ 			- end with a softmax
+ 		- why convolutions?
+ 			- parameter sharing
+ 	- Case Studies:
+ 		- look at specific implementation of CNNs in different domains to better leverage for future tasks!
+ 	- Classic networks:
+ 		- LeNet-5
+ 			- LeCun et. al '98
+ 			- 32x32x1 -> 5x5 filter -> 28x28x6 -> avg. pool (f=2,s=2) -> 14x14x6 -> 5x5 filter -> avg. pool (f=2, s=2) -> 5x5x16 -> FC -> 120 -> FC -> 84 -> antique activation -> output
+ 			- 60k parameters
+ 			- nH, nW go down as we go deeper
+ 			- nC goes up
+ 			- common template: conv pool conv pool fc fc output
+ 		- AlexNet
+ 			- Krizhevsky et al. '12
+ 			- 227x227x3 -> 11x11,s=4 filter -> 55x55x96 -> max pool (f=3,s=2) -> 27x27x96 -> 5x5 same conv -> 27x27x256 -> max pool (f=3,s=2) -> 13x13x256 -> 3x3 same conv -> 13x13x384 -> 3x3 filter -> 13x13x384 -> 3x3 filter -> 13x13x256 -> max pool (f=3,s=2) -> 6x6x256 -> fc -> 9216 -> fc -> 4096 -> fc -> 4096 -> softmax -> output
+ 			- 60M parameters
+ 			- local response normalization? 
+ 		- VGG-16
+ 			- simonyan & zisserman '15
+ 			- 224x224x3 -> same conv 64 x2 -> 224x224x64 -> max pool (f=2,s=2) -> 112x112x64 -> same conv 128 x2 -> max pool (f=2,s=2) -> 56x56x128 -> same conv 256 x3 -> 56x56x256 -> max pool (f=2,s=2) -> 28x28x256 -> same conv 512 x3 -> 28x28x512 ->  ... -> 1000 -> softmax
+ 			- 138M parameters
+ 			- Ng loves it because the layers are systematic
+ 	- ResNet (152-layer NN)
+ 		- He et al '15
+ 		- residual block:
+ 			- a[l+1] = g(W[l+1]a[l] + b[l+1])	# regular nn
+ 			- a[l+2] = g(W[l+2]a[l+1] + b[l+1] + a[l])	# residual block
+ 			- allows you to train much deeper networks
+ 				- usually you can increase training error with deeper networks
+ 				- resnets can lead to deeper networks without increasing training error
+ 			- it's easy for the res-block to learn the identity function, so it does not hurt performance to add more layers
+ 	- 1x1 convolution
+ 		- nHxnWxnC -> 1x1xnC -> relu -> nHxnWxnF
+ 		- each filter multiplies each channel to get one value
+ 		- to reduce the number of channels, use fewer filters than nC
+ 		- pooling layers allow to reduce the height and width
+ 	- Inception
+ 		- Szegedy et al. '14
+ 		- for one transformation, stack outputs of many different filters/pools, ensuring dimensions match
+ 		- use 1x1 to get a bottleneck layer
+ 		- use many transformations in one layer to have a very shallow network with much complexity
+ 		- inspired by inception meme
+ 	- use open-source: to skip expensive tuning
+ 	- transfer learning: eg. get imagenet model with weights, freeze all parameters except for softmax layer, modify and re-train for your problem
+ 		- can vary how many layers to freeze
+ 		- Ng: always do transfer learning unless you have an exceptionally large dataset
+ 	- data augmentation: mirroring | ~shearing | random cropping | ~local warping | ~rotation | color shifting | ~PCA color augmentation
+ 	- current state
+ 		- data vs hand engineering
+ 		- how much data we have
+ 			- more hand-engineering/hacks :less data <- object detection | image recognition | speech recognition -> lots of data: simpler algorithms, less hand-engineering
+ 		- sources of knowledge: 
+ 			- labeled data
+ 			- hand-engineering / network architecture / other components
+ 		- tips for doing well on benchmarks:
+ 			- ensemble of models: vote
+ 			- multi-crop at test time: vote
+ 	- Object Detection:
+ 		- object localization:
+ 			- put a bounding box on the actual object
+ 			- detection = localize all objects in image
+ 			- model output: bx, by, bh, bw | midpoints, extent of bounding box
+ 			- y = [pc, bx, by, bh, bw, ci]
+ 				- pc = prob of an object being present in the bounding box
+ 				- b_ = bounding box
+ 				- ci = a set of |i| elements, whether it belongs to class i
+ 				- can define more key positions in the output layer, beyond just the bounding box
+ 					- landmark detection
+ 					- but will also need the labeled data to be able to train it!
+ 			- loss = sum{i} (y_i' - y_i)^2 if y[1]=1
+ 				- (y[1]'-y[1])^2 if y[1] = 0
+ 				- y is the true data
+ 		- training a detection model
+ 			- get labeled data
+ 			- crop out all the bounding boxes and get a new training set
+ 			- train convNets on this new data set outputting a smaller softmax vector
+ 			- now train model on original set with sliding windows (fixed stride) to get a fuller output with bounding boxes
+ 				- iterate over the size of the sliding window
+ 				- sliding windows detection
+ 					- infeasible with convNets, was efficient with simple linear classifiers of the past
+ 				- but you can implement sliding windows on sliding windows: review details ? ?
+ 					- the size of the window is fixed tho
+ 					- the location of the bounding box will not be accurate
+ 		- YOLO [You only look once]
+ 			- break image to grids: 9
+ 			- label training data for each grid: y = [pc, bx, by, bh, bw, ci]
+ 				- bounding boxes can go beyond the grid cell
+ 				- can be augmented with many anchor boxes
+ 				- y = gxgxax(n+5)
+ 					- a = no of anchor boxes
+ 					- n = no of classes
+ 					- g = no of grid cells of original image
+ 				- input -> nHxnWxnC -> convNet -> y (gxgxaxn)
+ 			- run the convNet, get output
+ 			- run non-max suppression for all classes
+ 			- works for real-time object detection
+ 		- Intersection over Union (IoU)
+ 			- two bounding boxes spanned by the model that 'detect' an object
+ 			- size of intersection / size of union
+ 			- localization is correct if IoU >= 0.5 
+ 				- convention
+ 		- non-max suppression:
+ 			- many bounding boxes will predict the same object
+ 			- setup: discard all boxes with pc <= 0.6
+ 				- for all grid cells
+ 			- pick the box with max pc in a class and return as prediction
+ 			- discard any box with IoU >= 0.5 with the box returned previously
+ 			- rinse and repeat
+ 		- anchor boxes:
+ 			- pick a specific shape as a box, beyond the grid cell sizes
+ 				- can choose many hand-picked anchor boxes before hand
+ 				- augment y with more values for each anchor box centered somewhere in the grid cell
+ 		- region proposals:
+ 			- pick a subset/region of the image that have a higher probability of containing objects
+ 			- R-CNN: does image segmentation, then classify on those regions one-by-one
+ 				- slow
+ 	- Face Recognition: 
+ 		- verification (given: image | name) vs. recognition (given: image)
+ 		- one-shot learning:
+ 			- learning from one example to recognize person again
+ 		- learn a similarity function: d(img1, img2)
+ 			- can be used to address one-shot learning problems
+ 			- verification: set a threshold for d
+ 			- recognition: take a max over all persons
+ 		- siamese network: 
+ 			- take one of the last few FC layers in a convnet
+ 				- f(x[1])
+ 				- distance between such encodings of different images, over the same convnet parameters (aka siamese) is a form of similarity function
+ 				- DeepFace Taigman '14
+ 			- train this siamese network to give a good similarity function
+ 			- triplet loss
+ 				- given 3 images: anchor | positive | negative
+ 				- L(A,P,N) = max(||f(A) - f(P)||^2 - ||f(A) - f(N)||^2 + alpha, 0)
+ 				- train the model to get this loss to 0
+ 					- aka set the positive at least alpha away from the negative
+ 				- how many triples so train on
+ 				- FaceNet '15
+ 				- commercial ~ millions of images
+ 			- face-recognition: take a siamese network of two images and verify if they are the same with a linear combination of the final FC layer. turns it into a binary clasification. train a log-reg on the error between fc layer of a siamese network.
+ 				- train on several pairs of images: +ve and -ve
+ 				- can precompute encodings for a set of images
+ 	- neural style transfer
+ 		- transfer an artistic style to an image
+ 		- make a cost function for the generated image: 
+ 			- J(G) = a*Jc(C,G) + bJs(S,G)
+ 			- c = content | s = style
+ 		- steps:
+ 			- initialize G randomly
+ 			- Use gradient descent to minimize J(G)
+ 			- G should be similar to both C and S
+ 		- use some hidden layer l, somewhere in the middle to compute network cost
+ 		- Jc(C,G) = a*||a\[l](C) - a\[l](G)||^2
+ 			- differences of activations of C,G
+ 			- content cost function
+ 		- Js(S,G) = a*||M\[l](s)-M\[l](g)||^2
+ 			- style cost function
+ 			- style = correlation across channels in a hidden layer in the middle of our network
+ 			- style matrix (gram): 
+ 				- Mkk'\[l](s) = a_ijk\[l](s) a_ijk'\[l](s)
+ 				- Mkk'\[l](g) = a_ijk\[l](g) a_ijk'\[l](g)
+ 			- can do a linear combination of many layers, with a weighting parameter
+ 	- visualizing layers of convnets:
+ 		- pick a unit in layer 1
+ 		- find the nine patches that maximize the unit's activation
+ 		- look at the features these units differentiate from the nine patches
+ 		- repeat for deeper layers
+ 	- Convolutions in 1D and 3D Data !?!?
+ 		- 1D: 1D filters in time = moving average
+ 		- 3D: automatically an input -> apply 3D filters

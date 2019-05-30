@@ -1,0 +1,63 @@
+# Structuring ML projects
+ Options: 
+- Collect more data
+- Collect more diverse training set
+- Train algorithm longer with gradient descent
+- Try Adam instead of gradient descent
+- Try a bigger/smaller network
+- Try dropout/try L2 regularization
+- Adjust network architecture:
+    - activation functions
+    - no. of hidden units
+- Orthogonalization
+    - Steps of ML:
+ 		- Fit training set well on cost function (upto human level performance) - [bigger network] [Adam]
+ 		- Fit dev set well on cost function - [regularization: dropout/L2] [bigger training set]
+ 		- Fit test set well on cost function - [bigger dev set]
+ 		- Performs well in real world - [change dev set] [change cost function]
+ 	- Early stopping (usual method of cross-validation) affects both bias and variance: the first two steps mentioned  
+- Single number eval metric: as in F1 score: harmonic mean of precision and recall
+- satisficing (algo should perform better than x) and optimizing metric (hyperparameter: run crossvalidation on this)
+- train/dev/test distributions
+ 	- dev and test sets should come from the same distribution
+- size of dev/test
+ 	- test set should be big enough to give high confidence in the overall performance of the system (doesn't have to be 30% eg. min(10,000, 30%))
+- when to change dev/test sets and metrics
+ 	- 1) choose target/metric
+ 	- 2) figure out how to hit target
+- compare to human level performance an approximation of optimal bayes error
+ 	- usually harder to get much better than human level error, can't get labeled data, can't debug
+- avoidable bias (if learner is not close to human level/ optimal bayes error)
+	- surpassing human performance: 
+		- structured data
+		- lots of data
+		- not natural perception problem
+
+How to improve model performance?
+- Error analysis: 
+ 	- find the reason for high error (aka bias), debug the mislabeled samples. Assess superficially whether there is a tangible reason for the mislabeling. If yes and a significant number are due to a tangible reason, try to tune the algo on that specific tangible reason/feature. Eg.: picture is blurry, small dog is a car, filters etc.
+ 	- mislabeled data: NNs are resilient to random errors aka treat as outliers. but not to systematic errors, but above error analysis by looking at mislabeled data manually will isolate such a problem. 
+ 	- manually checking mislabeled data allows to build a hierarchy of reasons for errors. Track the ones that cause most error. After diagnosis, apply the fix to training, dev and test sets. 
+ 	- BUILD QUICKLY THEN ITERATE! START SIMPLE THAN FINE-TUNE. 
+ 	- If you are training your model on a dataset, but you have fewer samples of your target dataset. And you supplement with tangentially similar but much larger dataset. Include parts of the target dataset in your train set, but limit your dev and test set to be fully comprised of your target dataset. Thus you will train on tangential features and target features and optimize per target features. 
+ 		- you might end up training on purely the train set and end up with high variance when looking at dev error.
+- Avoidable bias = (Train error - Human/optimal bayes error) 
+ 	- [Train bigger model: more units per layer]
+ 	- [Train longer/better optimization algorithms]
+ 	- [NN architecture/hyperparameters search]
+- Variance = (Train error - train-dev error) 
+ 	- [Get more data]
+ 	- [Control overfitting: regularize: l2, dropout, data augmentation]
+ 	- [NN architecture/hyperparameters search]
+- Data Mismatch = (Train-dev error - dev-error)
+	- manually assess data mismatch like in manual error analysis
+ 	- get more similar data
+ 	- artificially manipulate/synthesize data to look more like target dataset. What are the degrees of freedom of your artificial data? what is the vector space of your data? Make sure it is sufficient to not overfit the model to a subspace represented from the artifical data aka break stereotypes. 
+- Overfitting = (Test error - dev error) [Regularize]
+- Transfer learning
+ 	- take the old NN, reset the weights for the last layer and re-train the last layer (can re-train the entire network, in this case the first step of learning acts as a form of initialization)
+ 	- essentially can use initialization from a larger directly/tangentially related dataset and fine-tune to the target dataset with re-training parts of the network.
+- learning from multiple tasks: tasks might share some 'lower-level' features allowing for efficiency. amount of data for each task is similar. train a network large enough with data containing all sets of tasks.
+- end to end deep learning: direct mapping from x to y as opposed to pipeline of layers of data-processing/ML to output. 
+ 	- pipelines to extract features that are more tangible for human comprehension and putting into a non-ML pipeline, instead of a black box. 
+ 	- Do you have enough data to map from x to y; to correctly figure out the mapping function, you need data commensurate with the dimensionality of the function.  

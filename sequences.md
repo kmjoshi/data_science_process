@@ -1,0 +1,211 @@
+# Sequence Models
+- Examples
+	- speech recognition
+	- music generation
+	- sentiment classification
+	- DNA sequence analysis
+	- machine translation
+	- video activity recognition
+	- name entity recognition
+- Notation:
+ 	- x: input
+ 	- y: output
+ 	- sup \<i> = index of word/element in sequence
+ 	- sup (i) = training example index
+ 	- Tx = Ty = no of elements in sequence
+ 	- vocabulary of size n: represent x\<i> as one-hot encoded vectors of size n
+- Recurrent Neural Networks
+ 	- why not a standard nn?
+ 		- input and outputs have different lengths for different examples
+ 		- features are not shared across different positions of text
+ 	- setup:
+ 		- a\<i>: activation for i element in sequence
+ 			- a\<0>: vector of zeros
+ 			- a\<i>: g(w_aa*a\<i-1> + w_ax*x\<i> + ba)
+ 				- g: tanh | relu
+ 		- y\<i>: g(w_ya*a\<i> + by)
+ 			- g: sigmoid
+ 		- w_a[a/x/y]: weights for transfer
+ 	- types of RNN architecture:
+ 		- many-to-many: Tx = Ty
+ 			- also Tx != Ty
+ 				- machine translation: encoder (input xs) | decoder (output ys)
+ 		- many-to-one: Ty = 1
+ 			- sentiment analysis
+ 		- one-to-one: Tx = Ty = 1
+ 			- regular nn
+ 		- one-to-many: Tx = 1
+ 			- music generation
+ 	- language modelling and sequence generation: 
+ 		- speech recognition: P(sentence/word) as a function of preceding word/sentence
+ 			- training set: a lot of text, tokenize the text into a set of input arrays x(i)\<>
+ 				- y\<i> = P(ith word being = all possible words in dict)
+ 				- the sequence becomes like a maximum likelihood function
+ 		- sample a sequence from a trained RNN:
+ 			- sample from the softmax probabilities y\<i>, in a sequence so start with i=1
+ 		- word-level vs character-level
+ 			- character-level:
+ 				- longer sequences
+ 				- can handle unknown words and set them definite probabilities
+ 			- word-level:
+ 				- more efficient
+ 	- vanishing gradients w/ RNNs
+ 		- longer sequences lead to vanishing gradients
+ 			- elements have minimal effect on other elements far away
+ 		- exploding gradients: gradient clipping?
+ 	- Gated Recurrent Unit (GRU):
+ 		- ~c\<i> = a\<i>
+ 		- g_u = sigmoid(w_aa*a\<i-1> + w_ax*x\<i> + ba)
+ 		- c\<i> = g_u*~c\<i> + (1-g_u)*c\<i-1>
+ 		- it's like a convolution of sigmoid and tanh activation of a\<i>, and the difference between consecutive elements
+ 		- FULL GRU is different
+ 	- Long Short Term Memory (LSTM)
+ 		- ~c\<t> = tanh(w_a[a\<t-1>, x\<t>] + b_a)
+ 		- g_u = sigmoid(w_u[a\<t-1>, x\<t>] + b_u)
+ 		- g_f = sigmoid(w_f[a\<t-1>, x\<t>] + b_f)
+ 		- g_o = sigmoid(w_o[a\<t-1>, x\<t>] + b_o)
+ 		- c\<t> = g_u*~c\<t> + g_f*c\<t-1>
+ 		- a\<t> = g_o*tanh(c\<t>)
+ 		- designed to handle vanishing gradients
+ 			- along with GRU
+ 		- Ng Notes: GRU is a simpler model, easier to make larger models
+ 			- LSTM is more complex, powerful
+ 	- Bidirectional RNN
+ 		- two RNNs in parallel, both feed to y\<i> and take inputs from x\<i>
+ 		- can augment a regular RNN / LSTM / GRU architecture
+ 	- Deep RNNs
+ 		- add more layers!
+ 	- RNN code notation:
+ 		- m = no of examples
+ 		- n_a = no of activations
+ 		- n_x = size of vocab?
+ - Word embeddings:
+ 	- words as 1-hot vectors
+ 	- words as vectors of probability of belonging to n categories: embedding
+ 	- how to use:
+ 		- learn word-embeddings on a large text dataset (download pre-trained embedding)
+ 		- transfer embedding to a new task with a smaller training set (similar to CV transfer learning)
+ 		- optional: tune word-embeddings to your new data
+ 	- vector subtraction captures a relationship between words that can be used via dot products to get analogies (similies on the fly)
+ 		- Mikolov et al '13
+ 	- cosine similarity = u.v / |u||v|
+ 		- normalized dot-product
+ 	- how to learn a word-embedding:
+ 		- E = n x vocab_size matrix
+ 			- e_j = E@Oj
+ 			- Oj = one-hot vocab encoding
+ 		- neural language model: 
+ 			- Oj -> ej 
+ 			- use a subset of words, last n words etc 
+ 			- input into a fc layer and softmax to predict the next word
+ 			- can use such a setup to learn the embeddings matrix
+ 			- can pick inputs/context in many ways
+ 				- n words before / after / before+after
+ 		- Word2Vec Skip-gram:
+ 			- randomly pick a context word, randomly pick a target word
+ 			- given context, predict a word within +/- n word distance from context
+ 			- get a probability distribution based on context: p(t|c)
+ 			- train on many context/target pairing and train an embedding matrix
+ 			- slow training scaling with the size of the vocabulary
+ 				- solution binary tree classifier on vocab in softmax
+ 		- negative sampling
+ 			- pick a context
+ 			- pick the target word
+ 			- add more training examples with random words from vocab, these are all negative context-target pairs
+ 			- faster than Word2Vec, training binary classifiers instead of n softmax classifiers
+ 			- random words were sampled with probability f(wi)^(3/4) | where f(wi) is the frequency of word i
+ 		- GloVe: global vectors for word representation
+ 			- x_ij = no. of times word_i appears in context of word_j
+ 				- x_ij symmetric? 
+ 				- how is context-target defined? | in GloVe: within 10 words
+ 			- minimize sum{i=vocab;j=vocab} f(x_ij)(theta_i*ej + bi + bj' - log(x_ij))^2
+ 				- f(x_ij) sets to 0 all terms where x_ij = 0
+ 				- theta_i and e_j are symmetric
+ 		- how do you label the embedding matrix?
+ 			- labels aren't guaranteed\
+ 			- could do a basis change to get well-labeled embeddings, how?
+ 	- sentiment classification:
+ 		- oj -> ej -> avg -> sentiment_softmax
+ 			- can miss context, order of words
+ 		- rnn for sentiment classification
+ 	- debiasing word embeddings
+ 		- gender bias | racial bias | socioeconomic bias
+ 		- neutralize: project every word that is not definitional, to get rid of bias
+ 		- equalize pairs to be orthogonal on the bias basis vector
+ 	- Keras LSTM tip: return_sequences=True for first LSTM layer
+ - Sequence-to-sequence architectures
+ 	- machine translation
+ 		- encode sentence in original language with a RNN network
+ 		- decode sentence / synthesize sentence with another RNN in new language
+ 		- this works given enough paired data
+ 	- image captioning
+ 		- input: image
+ 		- output: caption
+ 		- take output of convNet (before softmax layer) and input into an RNN to generate a caption
+ 	- conditional language model
+ 		- P(y|x) = ?
+ 			- how to maximize this probability
+ 			- why not greedy search? does not work, need to maximize joint probability
+ 		- beam search!
+ 			- pick B best words to start the sequence
+ 			- pick B best set of words so far with highest joint probability
+ 			- rinse and repeat for rest of sequence
+ 			- EOS should be a valid word
+ 			- pick best output
+ 			- B = 1: greedy search
+ 	- length normalization:
+ 		- instead of minimizing small joint probabilities (that might not be representable by floating points); maximize log of joint probabilities
+ 		- normalize by the number of words in the output sequence
+ 			- 1/Ty^alpha * sum{t:1-Ty} log P(yt|x,y1,...,yt-1)
+ 			- alpha = 0.7 | hacky way of normalizing 
+ 			- allows the model to output longer sentences
+ 	- beam width trade-off
+ 		- research systems ~ B = 1000
+ 		- production systems ~ B = 10
+ 	- error analysis:
+ 		- compare P(y|x) & P(y'|x)
+ 			- y is human translation
+ 			- y' is model translation
+ 		- either beam search is at fault | or RNN is at fault
+ 			- no quantitative score minimization
+ 			- can either improve beam search or change RNN architecture
+ 	- Bleu Score:
+ 		- bleu: bilingual evaluation understudy
+ 		- given: input | reference translations | model output
+ 		- modified precision: for each word in model output, no of times each word appears in either of the reference / no of times it appears in model output
+ 			- sum{i: no. in reference}/sum{i: no in model output}
+ 		- bigrams: pairs of words
+ 			- modified precision for each bigram
+ 			- can extend to n-grams
+ 		- combined bleu score: e^(1/4 sum{n=1-4} p_n)
+ 			- 1-gram, 2-gram, 3-gram, 4-gram
+ 		- BP: brevity penalty
+ 			- bleu score can incentivize short phrases that contain reference words
+ 			- 1 if model_output_len > reference_len
+ 				- e^(1-model_output_len/reference_len) otherwise
+ 	- Attention model:
+ 		- hard to encapsulate long sequences into a meaningful input into the decoder
+ 			- same problems with human translation
+ 		- break sentence into segments | setup bidirectional encoder RNN | connect every state with every state of the decoder RNN
+ 		- sum{t'} alpha\<1,t'> = 1
+ 			- 1 is the state of the decoder RNN
+ 			- t' is the state of the encoder ENN
+ 			- alpha\<t,t'> = e^(e\<t,t'>) / sum{t'} e^(e\<t,t'>)
+ 				- amount of attention y\<t> should pay to a\<t'>
+ 				- e\<t,t'> calculated from a 1-layer nn with (s\<t-1>, a\<t'>) as inputs
+ 					- what is the loss?
+ 			- c\<1> = sum{t'} alpha\<1,t'>a\<t'>
+ 				- context input into the decoder RNN
+ 		- review this ? ?
+ 	- speech recognition: 
+ 		- air pressure vs time -> frequency, intensity vs. time
+ 		- used to learn speech via phonemes, but deep learning can learn phonemes intrinsically
+ 		- thousands of hours of label audio-transcript data
+ 			- how to segment the data in time for RNN inputs
+ 			- review AI?
+ 		- CTC (connectionist temporal classification) cost
+ 			- allows repeated output
+ 			- collapse repeated characters not separated by blank
+ 				- eg. ttt_h_eee___space__qqq = the q
+ 		- trigger word detection:
+ 			- label the data with 0s except when the trigger word is said
