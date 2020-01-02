@@ -1,10 +1,10 @@
 # Machine Learning (notes from '15)
-Supervised Learning: Using already classified/regressed data learn and predict for any future dataset  
-Unsupervised Learning: Based on a dataset find patterns and similarities and any new findings
-Classification: classify data into n-discrete sets, find a function that maps data to this discrete set  
-Regression: classify data onto a continuous set; used for prediction of continuous variables pricing, temperature etc.  
+**Supervised Learning**: Using already classified/regressed data learn and predict for any future dataset  
+**Unsupervised Learning**: Based on a dataset find patterns and similarities and any new findings  
+**Classification**: classify data into n-discrete sets, find a function that maps data to this discrete set  
+**Regression**: classify data onto a continuous set; used for prediction of continuous variables pricing, temperature etc.  
 
-Algorithms  
+### Algorithms  
 - k-nearest neighbor
     - classify input based on k nearest neighbor values
     - really seems way too simple...
@@ -19,11 +19,12 @@ Algorithms
         - bootstrapping over random tress (aka forests) to get reduced variance in ensemble function output
 - neural networks
 
-Ways to solve problem aka minimize estimated loss aka find the conditional distribution (the big picture): Ch. 3. Supervised Learning  
+### Ways to solve problem aka minimize estimated loss aka find the conditional distribution (the big picture): Ch. 3. Supervised Learning  
 Discriminative: 
 - kNN
 - random forest
 - support vector machines  
+
 Generative: 
 - calculate conditional probabliltiy therefore estimated loss using bayesian rules and parameters: fit the distribution  
 
@@ -43,7 +44,7 @@ Deterministic approximations
 Stochastic Approximations
 - Markov Chain Monte Carlo (Gibbs, MH), Importance sampling (Particle filtering)
 
-Above methods are also applicable in unsupervised learning?
+*Above methods are also applicable in unsupervised learning?*
 
 Gradient descent: Cost function update algorithm: other options:
 - conjugate gradient
